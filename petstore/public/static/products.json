@@ -1,0 +1,49 @@
+{
+  "products": [
+    {
+      "id": 1001,
+      "title": "Корм для кошек, мешок 250 gram",
+      "description": "250 граммовый пакет <em>неотразимых</em> органических продуктов для вашей кошки.",
+      "price": 2000,
+      "image": "static/images/product-fullsize.png",
+      "availableInventory": 10,
+      "rating": 1
+    },
+    {
+      "id": 1002,
+      "title": "Пряжа",
+      "description": "Пряжа, с которой ваша кошка может играть очень <strong>долго</strong>!",
+      "price": 299,
+      "image": "static/images/yarn.jpg",
+      "availableInventory": 7,
+      "rating": 1
+    },
+    {
+      "id": 1003,
+      "title": "Наполнитель",
+      "description": "Премиальный кошачий туалет для вашей кошки.",
+      "price": 1100,
+      "image": "static/images/cat-litter.jpg",
+      "availableInventory": 99,
+      "rating": 4
+    },
+    {
+      "id": 1004,
+      "title": "Кошкин дом",
+      "description": "Место для игр вашей кошки!",
+      "price": 799,
+      "image": "static/images/cat-house.jpg",
+      "availableInventory": 11,
+      "rating": 5
+    },
+    {
+      "id": 1005,
+      "title": "Лазерная указка",
+      "description": "Сведите свою кошку с ума с помощью этого <em>потрясающего</em> продукта.",
+      "price": 4999,
+      "image": "static/images/laser-pointer.jpg",
+      "availableInventory": 25,
+      "rating": 1
+    }
+  ]
+}

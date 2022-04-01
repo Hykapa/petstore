@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="assets/css/app.css" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.js"></script>
+    <title>Pet Depot</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="app">
+        <header>
+          <div class="navbar navbar-default">
+            <div class="navbar-header">
+              <h1>{{ sitename }}</h1>
+            </div>
+            <div class="nav navbar-nav navbar-right cart">
+              <button
+                type="button"
+                class="btn btn-default btn-lg"
+                v-on:click="showCheckout"
+              >
+                {{ cartItemCount}}
+                <span class="glyphicon glyphicon-shopping-cart"> </span>
+                Checkout
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main>
+          <div v-if="showProduct">
+            <div v-for="product in sortedProducts">
+              <div class="row">
+                <div class="col-md-5 col-md-offset-0">
+                  <figure>
+                    <img v-bind:src="product.image" class="product" />
+                  </figure>
+                </div>
+
+                <div class="col-md-6 col-md-offset-0 description">
+                  <h1 v-text="product.title"></h1>
+                  <p v-html="product.description"></p>
+                  <p class="price">
+                    {{product.price | formatPrice}}
+                  </p>
+
+                  <button
+                    v-if="canAddToCart(product)"
+                    v-on:click="addToCart(product)"
+                    class="btn btn-primary btn-lg"
+                  >
+                    Добавить в корзину
+                  </button>
+                  <button v-else disabled="true" class="btn btn-primary btn-lg">
+                    Добавить в корзину
+                  </button>
+
+                  <!-- Messages -->
+                  <span
+                    v-if="product.availableInventory - cartCount(product.id) === 0"
+                    class="inventory-message"
+                  >
+                    All out!
+                  </span>
+                  <span
+                    v-else-if="product.availableInventory - cartCount(product.id) < 5"
+                    class="inventory-message"
+                  >
+                    Only {{product.availableInventory - cartCount(product.id)}} left!
+                  </span>
+                  <span v-else class="inventory-message">
+                    Buy Now!
+                  </span>
+
+                  <div class="rating">
+                    <span
+                      v-for="n in 5"
+                      v-bind:class="{'rating-active': checkRating(n, product)}"
+                    >
+                      ☆
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else>
+            <div class="row">
+              <div class="col-md-10 col-md-offset-1">
+                <div class="panel panel-info">
+                  <div class="panel-heading">Pet Depot Checkout</div>
+                  <div class="panel-body">
+                    <div class="col-md-12">
+                      <h4><strong>Enter Your Information</strong></h4>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-6">
+                        <strong>First Name:</strong>
+                        <input
+                          v-model.trim="order.firstName"
+                          class="form-control"
+                        />
+                      </div>
+
+                      <div class="col-md-6">
+                        <strong>Last Name:</strong>
+                        <input
+                          v-model.trim="order.lastName"
+                          class="form-control"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-12"><strong>Address:</strong></div>
+                      <div class="col-md-12">
+                        <input
+                          v-model.trim="order.address"
+                          class="form-control"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-12"><strong>City:</strong></div>
+                      <div class="col-md-12">
+                        <input v-model.trim="order.city" class="form-control" />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-2">
+                        <strong>Регион:</strong>
+                        <select v-model="order.region" class="form-control">
+                          <option disabled value="">State</option>
+                          <option
+                            v-for="(region, key) in regions"
+                            v-bind:value="region"
+                          >
+                            {{key}}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-6 col-md-offset-4">
+                        <strong>Индекс:</strong>
+                        <input
+                          v-model.number="order.zip"
+                          class="form-control"
+                          type="number"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-6 boxes">
+                        <input
+                          type="checkbox"
+                          id="gift"
+                          value="true"
+                          v-bind:true-value="order.sendGift"
+                          v-bind:false-value="order.dontSendGift"
+                          v-model="order.gift"
+                        />
+                        <label for="gift">Отправить в подарок?</label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-6 boxes">
+                        <input
+                          type="radio"
+                          id="home"
+                          v-bind:value="order.home"
+                          v-model="order.method"
+                          value="Home"
+                        />
+                        <label for="home">Домашний</label>
+                        <input
+                          type="radio"
+                          id="business"
+                          v-bind:value="order.business"
+                          v-model="order.method"
+                          value="Business"
+                        />
+                        <label for="business">Бизнесс</label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <div class="col-md-6">
+                        <button
+                          type="submit"
+                          class="btn btn-primary submit"
+                          v-on:click="submitForm"
+                        >
+                          Разместить заказ
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12 verify">
+                      <pre>{{ $data }}</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
